@@ -28,6 +28,7 @@ interface WorkflowCanvasProps {
   onConnect: (connection: Connection) => void;
   onDrop: (event: React.DragEvent) => void;
   onDragOver: (event: React.DragEvent) => void;
+  onNodeSelect?: (nodeId: string | null) => void;
 }
 
 const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
@@ -38,8 +39,16 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   onConnect,
   onDrop,
   onDragOver,
+  onNodeSelect,
 }) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+
+  const handleNodeClick = useCallback(
+    (event: React.MouseEvent, node: WorkflowNode) => {
+      onNodeSelect?.(node.id);
+    },
+    [onNodeSelect]
+  );
 
   return (
     <div className="w-full h-full" ref={reactFlowWrapper}>
@@ -51,6 +60,7 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
         onConnect={onConnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        onNodeClick={handleNodeClick}
         nodeTypes={nodeTypes}
         fitView
         className="workflow-canvas"

@@ -10,8 +10,10 @@ import {
   OnEdgesChange 
 } from 'reactflow';
 import { WorkflowCanvas } from './WorkflowCanvas';
-import { NodePalette } from './NodePalette';
+import { WorkflowSidebar } from './WorkflowSidebar';
+import { NodeConfigPanel } from './NodeConfigPanel';
 import { WorkflowNode, WorkflowNodeData, NodeTemplate, NodeType } from '@/types/workflow';
+import { isValidConnection } from '@/utils/connectionValidation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -30,6 +32,7 @@ const getId = () => `node_${nodeId++}`;
 export const WorkflowStudio: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<WorkflowNodeData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -71,6 +74,18 @@ export const WorkflowStudio: React.FC = () => {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      // Validate connection
+      const validation = isValidConnection(params, nodes);
+      
+      if (!validation.isValid) {
+        toast({
+          title: "Invalid Connection",
+          description: validation.reason,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const newEdge = {
         ...params,
         id: `edge_${params.source}_${params.target}`,
@@ -87,8 +102,13 @@ export const WorkflowStudio: React.FC = () => {
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
+      
+      toast({
+        title: "Connection Added",
+        description: "Nodes have been successfully connected.",
+      });
     },
-    []
+    [nodes, toast]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -140,6 +160,56 @@ export const WorkflowStudio: React.FC = () => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(nodeType));
     event.dataTransfer.effectAllowed = 'move';
   };
+
+  const onAddNode = useCallback(
+    (template: NodeTemplate) => {
+      const position = {
+        x: Math.random() * 400 + 100,
+        y: Math.random() * 400 + 100,
+      };
+
+      const newNode = {
+        id: getId(),
+        type: 'custom' as const,
+        position,
+        data: {
+          label: template.label,
+          type: template.type,
+          subType: template.subType,
+          description: template.description,
+          parameters: template.defaultParameters || {},
+        },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+      
+      toast({
+        title: "Node Added",
+        description: `${template.label} node has been added to the workflow.`,
+      });
+    },
+    [toast, setNodes]
+  );
+
+  const onUpdateNode = useCallback(
+    (nodeId: string, updates: Partial<WorkflowNodeData>) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, ...updates } }
+            : node
+        )
+      );
+      
+      toast({
+        title: "Node Updated",
+        description: "Node configuration has been saved.",
+      });
+    },
+    [setNodes, toast]
+  );
+
+  const selectedNode = selectedNodeId ? nodes.find(node => node.id === selectedNodeId) : null;
 
   const handleSaveWorkflow = () => {
     const workflow = { nodes, edges };
@@ -232,9 +302,14 @@ export const WorkflowStudio: React.FC = () => {
             </div>
           </div>
 
-          {/* Node Palette */}
+          {/* Node Library */}
           <div className="flex-1 overflow-y-auto">
-            <NodePalette onDragStart={onDragStart} />
+            <WorkflowSidebar 
+              onDragStart={onDragStart} 
+              onAddNode={onAddNode}
+              selectedNodeId={selectedNodeId}
+              onNodeSelect={setSelectedNodeId}
+            />
           </div>
 
           {/* Footer */}
@@ -257,8 +332,18 @@ export const WorkflowStudio: React.FC = () => {
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onNodeSelect={setSelectedNodeId}
         />
       </div>
+
+      {/* Configuration Panel */}
+      {selectedNode && (
+        <NodeConfigPanel
+          node={selectedNode}
+          onUpdateNode={onUpdateNode}
+          onClose={() => setSelectedNodeId(null)}
+        />
+      )}
     </div>
   );
 };
