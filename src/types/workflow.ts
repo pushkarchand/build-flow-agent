@@ -10,9 +10,7 @@ export interface WorkflowNodeData {
   isEditing?: boolean;
 }
 
-export interface WorkflowNode extends Node {
-  data: WorkflowNodeData;
-}
+export type WorkflowNode = Node<WorkflowNodeData>;
 
 export interface NodeTemplate {
   id: string;

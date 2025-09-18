@@ -1,8 +1,17 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Connection, addEdge, MarkerType, Edge } from 'reactflow';
+import { 
+  Connection, 
+  addEdge, 
+  MarkerType, 
+  Edge, 
+  useNodesState, 
+  useEdgesState,
+  OnNodesChange,
+  OnEdgesChange 
+} from 'reactflow';
 import { WorkflowCanvas } from './WorkflowCanvas';
 import { NodePalette } from './NodePalette';
-import { WorkflowNode, NodeTemplate, NodeType } from '@/types/workflow';
+import { WorkflowNode, WorkflowNodeData, NodeTemplate, NodeType } from '@/types/workflow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -19,8 +28,8 @@ let nodeId = 0;
 const getId = () => `node_${nodeId++}`;
 
 export const WorkflowStudio: React.FC = () => {
-  const [nodes, setNodes] = useState<WorkflowNode[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<WorkflowNodeData>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -38,9 +47,9 @@ export const WorkflowStudio: React.FC = () => {
 
     const handleDuplicateNode = (event: any) => {
       const { nodeId, position, data } = event.detail;
-      const newNode: WorkflowNode = {
+      const newNode = {
         id: getId(),
-        type: 'custom',
+        type: 'custom' as const,
         position,
         data: { ...data, label: `${data.label} (Copy)` },
       };
@@ -58,7 +67,7 @@ export const WorkflowStudio: React.FC = () => {
       window.removeEventListener('delete-node', handleDeleteNode);
       window.removeEventListener('duplicate-node', handleDuplicateNode);
     };
-  }, [toast]);
+  }, [toast, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -105,9 +114,9 @@ export const WorkflowStudio: React.FC = () => {
         y: event.clientY - (reactFlowBounds?.top ?? 0),
       };
 
-      const newNode: WorkflowNode = {
+      const newNode = {
         id: getId(),
-        type: 'custom',
+        type: 'custom' as const,
         position,
         data: {
           label: template.label,
@@ -243,8 +252,8 @@ export const WorkflowStudio: React.FC = () => {
         <WorkflowCanvas
           nodes={nodes}
           edges={edges}
-          onNodesChange={setNodes}
-          onEdgesChange={setEdges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}

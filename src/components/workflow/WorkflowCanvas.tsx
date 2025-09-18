@@ -3,20 +3,18 @@ import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-  useNodesState,
-  useEdgesState,
-  addEdge,
   Connection,
   Edge,
-  Node,
   ReactFlowProvider,
   useReactFlow,
   BackgroundVariant,
+  OnNodesChange,
+  OnEdgesChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { CustomNode } from './CustomNode';
-import { WorkflowNode, NodeTemplate } from '@/types/workflow';
+import { WorkflowNode } from '@/types/workflow';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -25,8 +23,8 @@ const nodeTypes = {
 interface WorkflowCanvasProps {
   nodes: WorkflowNode[];
   edges: Edge[];
-  onNodesChange: (nodes: WorkflowNode[]) => void;
-  onEdgesChange: (edges: Edge[]) => void;
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
   onConnect: (connection: Connection) => void;
   onDrop: (event: React.DragEvent) => void;
   onDragOver: (event: React.DragEvent) => void;
@@ -42,52 +40,14 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   onDragOver,
 }) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { project } = useReactFlow();
-
-  const onNodesChangeHandler = useCallback(
-    (changes: any[]) => {
-      // Handle nodes state changes and propagate to parent
-      const updatedNodes = changes.reduce((acc, change) => {
-        if (change.type === 'remove') {
-          return acc.filter((node: WorkflowNode) => node.id !== change.id);
-        }
-        if (change.type === 'position') {
-          return acc.map((node: WorkflowNode) =>
-            node.id === change.id ? { ...node, position: change.position } : node
-          );
-        }
-        if (change.type === 'select') {
-          return acc.map((node: WorkflowNode) =>
-            node.id === change.id ? { ...node, selected: change.selected } : node
-          );
-        }
-        return acc;
-      }, nodes);
-      onNodesChange(updatedNodes);
-    },
-    [nodes, onNodesChange]
-  );
-
-  const onEdgesChangeHandler = useCallback(
-    (changes: any[]) => {
-      const updatedEdges = changes.reduce((acc, change) => {
-        if (change.type === 'remove') {
-          return acc.filter((edge: Edge) => edge.id !== change.id);
-        }
-        return acc;
-      }, edges);
-      onEdgesChange(updatedEdges);
-    },
-    [edges, onEdgesChange]
-  );
 
   return (
     <div className="w-full h-full" ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChangeHandler}
-        onEdgesChange={onEdgesChangeHandler}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
