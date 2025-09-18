@@ -57,6 +57,19 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Workflow-specific colors
+        canvas: "hsl(var(--canvas))",
+        "canvas-grid": "hsl(var(--canvas-grid))",
+        node: {
+          agent: "hsl(var(--node-agent))",
+          "agent-secondary": "hsl(var(--node-agent-secondary))",
+          tool: "hsl(var(--node-tool))",
+          "tool-secondary": "hsl(var(--node-tool-secondary))",
+          trigger: "hsl(var(--node-trigger))",
+          "trigger-secondary": "hsl(var(--node-trigger-secondary))",
+          action: "hsl(var(--node-action))",
+          "action-secondary": "hsl(var(--node-action-secondary))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
