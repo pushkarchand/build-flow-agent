@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { WorkflowNode } from '@/types/workflow';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/native-card';
+import { Button } from '@/components/ui/native-button';
+import { Input } from '@/components/ui/native-input';
+import { Label } from '@/components/ui/native-label';
+import { Textarea } from '@/components/ui/native-textarea';
+import { Separator } from '@/components/ui/native-separator';
+import { Badge } from '@/components/ui/native-badge';
 import { X, Save, Settings } from 'lucide-react';
 
 interface NodeConfigPanelProps {

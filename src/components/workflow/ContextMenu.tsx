@@ -5,7 +5,7 @@ import {
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from '@/components/ui/native-context-menu';
 import { Copy, Edit, Trash2, Settings } from 'lucide-react';
 
 interface NodeContextMenuProps {

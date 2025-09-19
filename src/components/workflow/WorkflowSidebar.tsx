@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { NodeCategory, NodeTemplate } from '@/types/workflow';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/native-card';
+import { Button } from '@/components/ui/native-button';
+import { Badge } from '@/components/ui/native-badge';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+} from '@/components/ui/native-collapsible';
 import { 
   ChevronDown, 
   ChevronRight,
